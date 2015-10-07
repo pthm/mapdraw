@@ -2,6 +2,8 @@ var request = require('superagent');
 var fs = require('fs');
 var gm = require('gm');
 var geoViewport = require('geo-viewport');
+var stats = require('stats-analysis');
+var _ = require('lodash');
 
 var mapboxToken;
 
@@ -80,8 +82,6 @@ function downloadAndDrawMap(line, callback){
       var endPoint = pointToPixel(line[line.length - 1]);
       map.drawEllipse(endPoint.x, endPoint.y, lineThickness / 2, lineThickness / 2, 0, 360);
 
-      map.enhance();
-
       map.write(outPath, function (err) {
         if (err) throw err;
         if(callback){
@@ -89,6 +89,22 @@ function downloadAndDrawMap(line, callback){
         }
       });
     })
+}
+
+function processLine(line){
+  var lons = _.pluck(line, 0);
+  var lats = _.pluck(line, 1);
+  var processedLine = [];
+  for(var i = 0; i < lons.length; i++){
+    var checkArray = lons.slice(i-3, i+3);
+    if(!stats.isOutlier(lons[i], checkArray, 0.5)){
+      checkArray = lats.slice(i-3, i+3);
+      if(!stats.isOutlier(lats[i], checkArray, 0.5)){
+        processedLine.push(line[i]);
+      }
+    }
+  }
+  return processedLine;
 }
 
 module.exports = function(line, options, callback){
@@ -101,6 +117,8 @@ module.exports = function(line, options, callback){
   }
 
   mapboxToken = options.mapboxToken;
+
+  line = processLine(line);
 
   width = options.width || 700;
   height = options.height || 500;
