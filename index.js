@@ -96,10 +96,10 @@ function processLine(line){
   var lats = _.pluck(line, 1);
   var processedLine = [];
   for(var i = 0; i < lons.length; i++){
-    var checkArray = lons.slice(i-3, i+3);
-    if(!stats.isOutlier(lons[i], checkArray, 0.5)){
-      checkArray = lats.slice(i-3, i+3);
-      if(!stats.isOutlier(lats[i], checkArray, 0.5)){
+    var checkArray = lons.slice(i-2, i+2);
+    if(!stats.isOutlier(lons[i], checkArray, 0.7)){
+      checkArray = lats.slice(i-2, i+2);
+      if(!stats.isOutlier(lats[i], checkArray, 0.6)){
         processedLine.push(line[i]);
       }
     }
