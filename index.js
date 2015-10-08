@@ -59,7 +59,7 @@ function calculateViewport(line){
 }
 
 function downloadAndDrawMap(line, callback){
-  request.get('https://api.mapbox.com/v4/mapbox.streets/'+
+  request.get('https://api.mapbox.com/v4/'+mapboxStyle+'/'+
     [center.join(','), zoomLevel].join(',')+
     '/'+[width,height].join('x')+
     '.png?access_token='+
@@ -72,15 +72,18 @@ function downloadAndDrawMap(line, callback){
         var point1 = pointToPixel(line[i]);
         var point2 = pointToPixel(line[i+1]);
         map.drawLine(point1.x, point1.y, point2.x, point2.y);
+        map.stroke('#2b3845', lineThickness/2);
+        map.drawEllipse(point1.x, point1.y, lineThickness / 3, lineThickness / 3, 0, 360)
+        map.stroke('#2b3845', lineThickness);
       }
 
       map.stroke('#5ad4f9');
       var startPoint = pointToPixel(line[0]);
-      map.drawEllipse(startPoint.x, startPoint.y, lineThickness / 2, lineThickness / 2, 0, 360);
+      map.drawEllipse(startPoint.x, startPoint.y, lineThickness / 1.5, lineThickness / 1.5, 0, 360);
 
       map.stroke('#6dd43c');
       var endPoint = pointToPixel(line[line.length - 1]);
-      map.drawEllipse(endPoint.x, endPoint.y, lineThickness / 2, lineThickness / 2, 0, 360);
+      map.drawEllipse(endPoint.x, endPoint.y, lineThickness / 1.5, lineThickness / 1.5, 0, 360);
 
       map.write(outPath, function (err) {
         if (err) throw err;
@@ -117,6 +120,7 @@ module.exports = function(line, options, callback){
   }
 
   mapboxToken = options.mapboxToken;
+  mapboxStyle = options.mapboxStyle || 'mapbox.streets';
 
   line = processLine(line);
 
